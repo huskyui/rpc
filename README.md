@@ -36,3 +36,9 @@
 
 ```
 
+### 待解决问题
++ 返回值如何确定，以及如何阻塞响应（使用future?）
++ client请求时，使用java自带的动态代理或者cglib（cglib尝试?），来发送请求
++ 传输使用什么传输协议,json还是google protocol
++ 服务注册发现，使用zookeeper或者使用其他的，阿波罗？
++ 负载均衡，通过读取zookeeper中的server节点，采取负载均衡政策
