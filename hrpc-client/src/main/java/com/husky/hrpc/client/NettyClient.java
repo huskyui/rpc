@@ -1,9 +1,9 @@
 package com.husky.hrpc.client;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.husky.hrpc.client.handler.ClientHandler;
+import com.husky.hrpc.client.proxy.DynamicProxy;
+import com.husky.hrpc.common.service.HelloService;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
@@ -24,18 +24,18 @@ public class NettyClient {
     private String host;
     private Integer port;
     private Bootstrap bootstrap;
-    public ClientHandler clientHandler;
+    private ClientHandler clientHandler;
 
 
-    public NettyClient(String host, Integer port) {
+    public NettyClient(String host, Integer port, ClientHandler clientHandler) {
         this.host = host;
         this.port = port;
+        this.clientHandler = clientHandler;
     }
 
 
     public void start() {
         EventLoopGroup eventLoopGroup = new NioEventLoopGroup();
-        clientHandler = new ClientHandler();
         bootstrap = new Bootstrap();
         bootstrap.group(eventLoopGroup)
                 .channel(NioSocketChannel.class)
@@ -49,20 +49,7 @@ public class NettyClient {
                                 .addLast(new ObjectDecoder(ClassResolvers.cacheDisabled(null)))
                                 .addLast(clientHandler);
                     }
-                }).connect(host,port)
+                }).connect(host, port)
                 .addListener(future -> log.info("connect server success :{} ", future.isSuccess()));
-    }
-
-    public void sendMsg(){
-
-    }
-
-
-    public static void main(String[] args) throws JsonProcessingException {
-        NettyClient nettyClient = new NettyClient("127.0.0.1",10243);
-        nettyClient.start();
-        nettyClient.clientHandler.sendMsg();
-
-
     }
 }

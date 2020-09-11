@@ -44,11 +44,6 @@ public class NettyServer {
                     }
                 })
                 .bind(port)
-                .addListener(future ->log.info("server start success :  {}",future.isSuccess()));
-    }
-
-    public static void main(String[] args) {
-        NettyServer nettyServer = new NettyServer(10243);
-        nettyServer.start();
+                .addListener(future -> log.info("server start success : {}", future.isSuccess()));
     }
 }

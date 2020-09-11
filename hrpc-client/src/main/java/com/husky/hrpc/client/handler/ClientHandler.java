@@ -18,7 +18,9 @@ public class ClientHandler extends SimpleChannelInboundHandler<String> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, String msg) throws Exception {
-        log.info("get message {}",msg);
+        log.info("get message {}", msg);
+        // 我觉得是不仅仅要关闭channel还有bootstrap
+        ctx.close().addListener(future -> log.info("close result :{}",future.isSuccess()));
     }
 
     @Override
@@ -26,16 +28,14 @@ public class ClientHandler extends SimpleChannelInboundHandler<String> {
         this.context = ctx;
     }
 
-    public void sendMsg() throws JsonProcessingException {
+    public void sendMsg(String className, String methodName, Object[] parameters, Class[] parameterTypes,Class returnType) throws JsonProcessingException {
         RequestInfo requestInfo = new RequestInfo();
-        requestInfo.setClassName("com.husky.hrpc.common.service.HelloService");
-        requestInfo.setMethodName("sayHello");
-        Object[] parameters = new Object[]{"huskyui"};
-        Class[] parameterTypes = new Class[]{String.class};
-
+        requestInfo.setClassName(className);
+        requestInfo.setMethodName(methodName);
         requestInfo.setParameters(parameters);
         requestInfo.setParameterTypes(parameterTypes);
         ObjectMapper mapper = new ObjectMapper();
+        // 发送信息给服务端
         context.writeAndFlush(mapper.writeValueAsString(requestInfo));
     }
 }
