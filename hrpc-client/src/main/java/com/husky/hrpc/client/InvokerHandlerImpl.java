@@ -28,7 +28,7 @@ public class InvokerHandlerImpl implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        handler.sendMsg(clazz.getName(), method.getName(), args, method.getParameterTypes(), method.getReturnType());
-        return null;
+        String requestId = handler.sendMsg(clazz.getName(), method.getName(), args, method.getParameterTypes(), method.getReturnType());
+        return handler.getResult(requestId);
     }
 }

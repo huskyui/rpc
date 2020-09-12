@@ -39,15 +39,16 @@ public class InvokeHandler extends SimpleChannelInboundHandler<String> {
     private void handleRequest(ChannelHandlerContext ctx, String msg) throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         RequestInfo requestInfo = mapper.readerFor(RequestInfo.class).readValue(msg);
-        log.info("requestInfo {}", requestInfo);
         Object object = MessageHandlerHolder.get(requestInfo.getClassName());
         Method method = object.getClass().getMethod(requestInfo.getMethodName(), requestInfo.getParameterTypes());
         method.setAccessible(true);
         Object result = method.invoke(object, requestInfo.getParameters());
-        log.info("result", result);
-        log.info("ctx {}", ctx);
-        TimeUnit.SECONDS.sleep(1);
-        ctx.writeAndFlush(mapper.writeValueAsString(result));
+        log.info("invoke result{}",result);
+        RequestInfo resultInfo = new RequestInfo();
+        resultInfo.setRequestId(requestInfo.getRequestId());
+        resultInfo.setResult(result);
+        log.info("result {}",resultInfo);
+        ctx.writeAndFlush(mapper.writeValueAsString(resultInfo));
     }
 
 

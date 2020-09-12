@@ -55,8 +55,24 @@ public class NettyClient {
 
     public static void main(String[] args) {
         HelloService helloService = (HelloService) DynamicProxy.newProxy(HelloService.class);
-        for (int i = 0; i < 100; i++) {
-            helloService.sayHello("huskyui");
-        }
+        // async run method
+        new Thread(()->{
+            System.out.println(helloService.sayHello("huskyui"));
+        }).start();
+
+        new Thread(()->{
+            System.out.println(helloService.sayHello("adios"));
+        }).start();
+
+        new Thread(()->{
+            System.out.println(helloService.sayHello("王二狗"));
+        }).start();
+
+
+
+//        // sync run method
+//        for (int i = 0; i < 100; i++) {
+//            helloService.sayHello("huskyui");
+//        }
     }
 }

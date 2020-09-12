@@ -11,4 +11,6 @@ public class RequestInfo {
     private String methodName;
     private Class[] parameterTypes;
     private Object[] parameters;
+    private String requestId;
+    private Object result;
 }
