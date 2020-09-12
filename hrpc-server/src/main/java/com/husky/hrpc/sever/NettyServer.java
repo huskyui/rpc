@@ -1,6 +1,8 @@
 package com.husky.hrpc.sever;
 
+import com.husky.hrpc.common.service.HelloService;
 import com.husky.hrpc.sever.handler.InvokeHandler;
+import com.husky.hrpc.sever.service.impl.HelloServiceImpl;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -45,5 +47,12 @@ public class NettyServer {
                 })
                 .bind(port)
                 .addListener(future -> log.info("server start success : {}", future.isSuccess()));
+    }
+
+
+    public static void main(String[] args) {
+        MessageHandlerHolder.add(HelloService.class, new HelloServiceImpl());
+        NettyServer nettyServer = new NettyServer(10243);
+        nettyServer.start();
     }
 }

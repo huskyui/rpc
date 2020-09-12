@@ -1,7 +1,5 @@
 package com.husky.hrpc.sever;
 
-import com.husky.hrpc.sever.service.impl.HelloServiceImpl;
-
 import java.util.concurrent.ConcurrentHashMap;
 
 /**

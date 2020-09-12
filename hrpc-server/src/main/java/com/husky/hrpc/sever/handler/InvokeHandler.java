@@ -26,6 +26,7 @@ public class InvokeHandler extends SimpleChannelInboundHandler<String> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, String msg) throws Exception {
+        // 使用线程池来接收更多的信息
         this.executorService.execute(() -> {
             try {
                 handleRequest(ctx, msg);
@@ -43,6 +44,9 @@ public class InvokeHandler extends SimpleChannelInboundHandler<String> {
         Method method = object.getClass().getMethod(requestInfo.getMethodName(), requestInfo.getParameterTypes());
         method.setAccessible(true);
         Object result = method.invoke(object, requestInfo.getParameters());
+        log.info("result", result);
+        log.info("ctx {}", ctx);
+        TimeUnit.SECONDS.sleep(1);
         ctx.writeAndFlush(mapper.writeValueAsString(result));
     }
 

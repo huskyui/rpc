@@ -46,6 +46,8 @@
 
 ### 版本一
 客户端隐藏实现逻辑，使用动态代理，将请求发送给服务端
+### 版本二
+实现future获取异步消息
 
 
 ### quick start
@@ -67,6 +69,7 @@ mvn clean install
 ```
 
 ```java
+// 具体的接口和实现类，可以自己diy
 // client
 HelloService helloService = (HelloService) DynamicProxy.newProxy(HelloService.class);
 helloService.sayHello("huskyui");

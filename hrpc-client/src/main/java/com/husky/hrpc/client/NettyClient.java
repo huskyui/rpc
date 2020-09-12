@@ -52,4 +52,11 @@ public class NettyClient {
                 }).connect(host, port)
                 .addListener(future -> log.info("connect server success :{} ", future.isSuccess()));
     }
+
+    public static void main(String[] args) {
+        HelloService helloService = (HelloService) DynamicProxy.newProxy(HelloService.class);
+        for (int i = 0; i < 100; i++) {
+            helloService.sayHello("huskyui");
+        }
+    }
 }
