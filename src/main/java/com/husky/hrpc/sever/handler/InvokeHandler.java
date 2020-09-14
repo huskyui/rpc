@@ -43,11 +43,12 @@ public class InvokeHandler extends SimpleChannelInboundHandler<String> {
         Method method = object.getClass().getMethod(requestInfo.getMethodName(), requestInfo.getParameterTypes());
         method.setAccessible(true);
         Object result = method.invoke(object, requestInfo.getParameters());
-        log.info("invoke result{}",result);
+        log.info("invoke result{}", result);
         RequestInfo resultInfo = new RequestInfo();
         resultInfo.setRequestId(requestInfo.getRequestId());
-        resultInfo.setResult(result);
-        log.info("result {}",resultInfo);
+        resultInfo.setResult(mapper.writeValueAsString(result));
+        resultInfo.setResultType(requestInfo.getResultType());
+        log.info("result {}", resultInfo);
         ctx.writeAndFlush(mapper.writeValueAsString(resultInfo));
     }
 

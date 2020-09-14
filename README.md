@@ -71,28 +71,33 @@ server:服务端完成invoke后，将requestId和结果一并返回
 mvn clean install
 
 ```xml
-        <dependency>
-            <groupId>com.husky</groupId>
-            <artifactId>hrpc-client</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.husky</groupId>
-            <artifactId>hrpc-server</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
+            <dependency>
+                <groupId>com.husky</groupId>
+                <artifactId>hrpc</artifactId>
+                <version>1.0</version>
+            </dependency>
 ```
 
 ```java
-// 具体的接口和实现类，可以自己diy
-// client
-HelloService helloService = (HelloService) DynamicProxy.newProxy(HelloService.class);
-helloService.sayHello("huskyui");
-// server
-MessageHandlerHolder.add(HelloService.class,new HelloServiceImpl());
-NettyServer nettyServer = new NettyServer(10243);
-nettyServer.start();
+
+public class Server {
+    public static void main(String[] args) {
+        MessageHandlerHolder.add(UserService.class,new UserServiceImpl());
+        NettyServer nettyServer = new NettyServer(10243);
+        nettyServer.start();
+    }
+}
+
+
+public class Client {
+    public static void main(String[] args) {
+        UserService userService = (UserService) DynamicProxy.newProxy(UserService.class);
+        for (int i = 0; i < 100; i++) {
+            System.out.println(userService.findUserById(i));
+        }
+    }
+}
+
 ```
 
 

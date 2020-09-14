@@ -23,21 +23,23 @@ public class ClientHandler extends SimpleChannelInboundHandler<String> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, String msg) throws Exception {
-        log.info("msg {}", msg);
+        log.debug("msg {}", msg);
         ObjectMapper objectMapper = new ObjectMapper();
         RequestInfo requestInfo = objectMapper.readerFor(RequestInfo.class).readValue(msg);
-        resultAsyncMap.put(requestInfo.getRequestId(), requestInfo.getResult());
+        Class resultType = requestInfo.getResultType();
+        Object result = objectMapper.readerFor(resultType).readValue(requestInfo.getResult());
+        resultAsyncMap.put(requestInfo.getRequestId(), result);
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        log.info("channel active");
+        log.debug("channel active");
         this.context = ctx;
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        log.info("channel inactive");
+        log.debug("channel inactive");
     }
 
     /**
@@ -50,6 +52,7 @@ public class ClientHandler extends SimpleChannelInboundHandler<String> {
         requestInfo.setParameters(parameters);
         requestInfo.setParameterTypes(parameterTypes);
         requestInfo.setRequestId(UUID.randomUUID().toString());
+        requestInfo.setResultType(returnType);
         ObjectMapper mapper = new ObjectMapper();
         // 发送信息给服务端
         context.channel().eventLoop().execute(() -> {
@@ -64,7 +67,8 @@ public class ClientHandler extends SimpleChannelInboundHandler<String> {
 
     public Object getResult(String requestId) {
         // 异步结果map
-        while (!resultAsyncMap.containsKey(requestId)){
+        // fixme 这里写的不好
+        while (!resultAsyncMap.containsKey(requestId)) {
         }
         return resultAsyncMap.get(requestId);
     }

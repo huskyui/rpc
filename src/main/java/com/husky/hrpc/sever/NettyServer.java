@@ -54,6 +54,5 @@ public class NettyServer {
         NettyServer nettyServer = new NettyServer(10243);
         nettyServer.start();
         System.out.println("start");
-        System.out.println(System.getProperty("java.class.path"));
     }
 }
