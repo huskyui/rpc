@@ -2,8 +2,10 @@ package com.husky.hrpc.client.handler;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.husky.hrpc.client.future.RpcFuture;
 import com.husky.hrpc.common.RequestInfo;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.extern.slf4j.Slf4j;
 
@@ -16,10 +18,16 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class ClientHandler extends SimpleChannelInboundHandler<String> {
 
-    private ConcurrentHashMap<String, Object> resultAsyncMap = new ConcurrentHashMap<>(64);
+    private EventLoopGroup eventLoopGroup;
+
+    private ConcurrentHashMap<String, RpcFuture> resultAsyncMap = new ConcurrentHashMap<>(64);
 
 
     private ChannelHandlerContext context;
+
+    public void setEventLoopGroup(EventLoopGroup eventLoopGroup) {
+        this.eventLoopGroup = eventLoopGroup;
+    }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, String msg) throws Exception {
@@ -28,7 +36,9 @@ public class ClientHandler extends SimpleChannelInboundHandler<String> {
         RequestInfo requestInfo = objectMapper.readerFor(RequestInfo.class).readValue(msg);
         Class resultType = requestInfo.getResultType();
         Object result = objectMapper.readerFor(resultType).readValue(requestInfo.getResult());
-        resultAsyncMap.put(requestInfo.getRequestId(), result);
+        RpcFuture lock = resultAsyncMap.remove(requestInfo.getRequestId());
+        lock.success(result);
+
     }
 
     @Override
@@ -45,7 +55,7 @@ public class ClientHandler extends SimpleChannelInboundHandler<String> {
     /**
      * 返回requestId
      */
-    public String sendMsg(String className, String methodName, Object[] parameters, Class[] parameterTypes, Class returnType) throws JsonProcessingException {
+    public RpcFuture sendMsg(String className, String methodName, Object[] parameters, Class[] parameterTypes, Class returnType) throws JsonProcessingException {
         RequestInfo requestInfo = new RequestInfo();
         requestInfo.setClassName(className);
         requestInfo.setMethodName(methodName);
@@ -54,6 +64,8 @@ public class ClientHandler extends SimpleChannelInboundHandler<String> {
         requestInfo.setRequestId(UUID.randomUUID().toString());
         requestInfo.setResultType(returnType);
         ObjectMapper mapper = new ObjectMapper();
+        RpcFuture rpcFuture = new RpcFuture();
+        resultAsyncMap.put(requestInfo.getRequestId(), rpcFuture);
         // 发送信息给服务端
         context.channel().eventLoop().execute(() -> {
             try {
@@ -62,15 +74,8 @@ public class ClientHandler extends SimpleChannelInboundHandler<String> {
                 e.printStackTrace();
             }
         });
-        return requestInfo.getRequestId();
+        return rpcFuture;
     }
 
-    public Object getResult(String requestId) {
-        // 异步结果map
-        // fixme 这里写的不好
-        while (!resultAsyncMap.containsKey(requestId)) {
-        }
-        return resultAsyncMap.get(requestId);
-    }
 
 }

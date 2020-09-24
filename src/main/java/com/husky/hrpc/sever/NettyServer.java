@@ -1,8 +1,6 @@
 package com.husky.hrpc.sever;
 
-import com.husky.hrpc.common.service.HelloService;
 import com.husky.hrpc.sever.handler.InvokeHandler;
-import com.husky.hrpc.sever.service.impl.HelloServiceImpl;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -14,6 +12,10 @@ import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
 import lombok.extern.slf4j.Slf4j;
+import org.I0Itec.zkclient.ZkClient;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 /**
  * @author huskyui
@@ -21,9 +23,14 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class NettyServer {
     private int port;
+    private ZkClient zkClient;
 
     public NettyServer(int port) {
         this.port = port;
+    }
+
+    private void initZookeeper() {
+        this.zkClient = new ZkClient("121.36.241.65:2181");
     }
 
 
@@ -46,13 +53,25 @@ public class NettyServer {
                 })
                 .bind(port)
                 .addListener(future -> log.info("server start success : {}", future.isSuccess()));
+        initZookeeper();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                if (!zkClient.exists("/rpc")) {
+                    zkClient.createPersistent("/rpc");
+                }
+                StringBuilder serverInfo = new StringBuilder();
+                try {
+                    serverInfo.append(InetAddress.getLocalHost().getHostAddress());
+                    serverInfo.append("_");
+                    serverInfo.append(port);
+                } catch (UnknownHostException e) {
+                    e.printStackTrace();
+                }
+                zkClient.createEphemeral("/rpc/" + serverInfo.toString());
+            }
+        }).start();
     }
 
 
-    public static void main(String[] args) {
-        MessageHandlerHolder.add(HelloService.class, new HelloServiceImpl());
-        NettyServer nettyServer = new NettyServer(10243);
-        nettyServer.start();
-        System.out.println("start");
-    }
 }

@@ -1,8 +1,6 @@
 package com.husky.hrpc.client;
 
 import com.husky.hrpc.client.handler.ClientHandler;
-import com.husky.hrpc.client.proxy.DynamicProxy;
-import com.husky.hrpc.common.service.HelloService;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -36,11 +34,14 @@ public class NettyClient {
 
     public void start() {
         EventLoopGroup eventLoopGroup = new NioEventLoopGroup();
+        clientHandler.setEventLoopGroup(eventLoopGroup);
         bootstrap = new Bootstrap();
-        bootstrap.group(eventLoopGroup)
+        bootstrap
+                .group(eventLoopGroup)
                 .channel(NioSocketChannel.class)
-                .option(ChannelOption.TCP_NODELAY, true)
-                .option(ChannelOption.SO_KEEPALIVE, true)
+//                .option(ChannelOption.TCP_NODELAY, true)
+//                .option(ChannelOption.SO_KEEPALIVE, true)
+                .option(ChannelOption.SO_REUSEADDR, true)
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
@@ -53,26 +54,5 @@ public class NettyClient {
                 .addListener(future -> log.info("connect server success :{} ", future.isSuccess()));
     }
 
-    public static void main(String[] args) {
-        HelloService helloService = (HelloService) DynamicProxy.newProxy(HelloService.class);
-        // async run method
-        new Thread(()->{
-            System.out.println(helloService.sayHello("huskyui"));
-        }).start();
 
-        new Thread(()->{
-            System.out.println(helloService.sayHello("adios"));
-        }).start();
-
-        new Thread(()->{
-            System.out.println(helloService.sayHello("王二狗"));
-        }).start();
-
-
-
-//        // sync run method
-//        for (int i = 0; i < 100; i++) {
-//            helloService.sayHello("huskyui");
-//        }
-    }
 }

@@ -61,44 +61,10 @@ client:在请求服务端时，将requestId带入服务端,并且轮询查看结
 server:服务端完成invoke后，将requestId和结果一并返回
 ### 版本三
 将多个module改成一个module,这里就设计过去思考有点没有注意到，如果我们生成jar时，并不要区分client和server
-
-
-
-
-
-### quick start
-
-mvn clean install
-
-```xml
-            <dependency>
-                <groupId>com.husky</groupId>
-                <artifactId>hrpc</artifactId>
-                <version>1.0</version>
-            </dependency>
-```
-
-```java
-
-public class Server {
-    public static void main(String[] args) {
-        MessageHandlerHolder.add(UserService.class,new UserServiceImpl());
-        NettyServer nettyServer = new NettyServer(10243);
-        nettyServer.start();
-    }
-}
-
-
-public class Client {
-    public static void main(String[] args) {
-        UserService userService = (UserService) DynamicProxy.newProxy(UserService.class);
-        for (int i = 0; i < 100; i++) {
-            System.out.println(userService.findUserById(i));
-        }
-    }
-}
-
-```
+### 版本四
+将client连接服务器配置暴露出来
+### 版本五
+实现客户端不需要指定服务器端，通过zk创建临时节点来实现服务发现。问题还是有不少的
 
 
 
