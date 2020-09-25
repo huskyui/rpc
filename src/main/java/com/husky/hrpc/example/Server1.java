@@ -1,4 +1,4 @@
-package com.husky.hrpc.run;
+package com.husky.hrpc.example;
 
 import com.husky.hrpc.common.service.HelloService;
 import com.husky.hrpc.sever.MessageHandlerHolder;

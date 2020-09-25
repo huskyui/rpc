@@ -26,6 +26,9 @@ public class InvokeHandler extends SimpleChannelInboundHandler<String> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, String msg) throws Exception {
+        //
+        log.info("receive msg {}",msg);
+
         // 使用线程池来接收更多的信息
         this.executorService.execute(() -> {
             try {

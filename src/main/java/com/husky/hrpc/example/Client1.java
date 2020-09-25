@@ -1,4 +1,4 @@
-package com.husky.hrpc.run;
+package com.husky.hrpc.example;
 
 import com.husky.hrpc.client.rpc.CallClient;
 import com.husky.hrpc.common.config.ZkConfig;

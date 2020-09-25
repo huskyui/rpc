@@ -2,6 +2,7 @@ package com.husky.hrpc.client;
 
 import com.husky.hrpc.client.handler.ClientHandler;
 import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
@@ -13,21 +14,20 @@ import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * @author huskyui
  */
 @Slf4j
 public class NettyClient {
 
-    private String host;
-    private Integer port;
     private Bootstrap bootstrap;
     private ClientHandler clientHandler;
+    public static ConcurrentHashMap<String,Channel> serverList = new ConcurrentHashMap<>(64);
 
 
-    public NettyClient(String host, Integer port, ClientHandler clientHandler) {
-        this.host = host;
-        this.port = port;
+    public NettyClient( ClientHandler clientHandler) {
         this.clientHandler = clientHandler;
     }
 
@@ -50,8 +50,17 @@ public class NettyClient {
                                 .addLast(new ObjectDecoder(ClassResolvers.cacheDisabled(null)))
                                 .addLast(clientHandler);
                     }
-                }).connect(host, port)
-                .addListener(future -> log.info("connect server success :{} ", future.isSuccess()));
+                });
+    }
+
+    public void connectServer(String host,int port) {
+        // 通过连接，将channel保存起来
+        Channel channel = bootstrap.connect(host, port)
+                .addListener(future -> {
+                    log.info("connect server success!");
+                }).channel();
+
+        serverList.put(host+"_"+port,channel);
     }
 
 

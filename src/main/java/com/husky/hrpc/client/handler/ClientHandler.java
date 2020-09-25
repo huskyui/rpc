@@ -2,11 +2,10 @@ package com.husky.hrpc.client.handler;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.husky.hrpc.client.InvokerHandlerImpl;
 import com.husky.hrpc.client.future.RpcFuture;
 import com.husky.hrpc.common.RequestInfo;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.channel.*;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.UUID;
@@ -16,14 +15,17 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author huskyui
  */
 @Slf4j
+@ChannelHandler.Sharable
 public class ClientHandler extends SimpleChannelInboundHandler<String> {
 
     private EventLoopGroup eventLoopGroup;
 
-    private ConcurrentHashMap<String, RpcFuture> resultAsyncMap = new ConcurrentHashMap<>(64);
+
 
 
     private ChannelHandlerContext context;
+
+    private Channel channel;
 
     public void setEventLoopGroup(EventLoopGroup eventLoopGroup) {
         this.eventLoopGroup = eventLoopGroup;
@@ -36,9 +38,8 @@ public class ClientHandler extends SimpleChannelInboundHandler<String> {
         RequestInfo requestInfo = objectMapper.readerFor(RequestInfo.class).readValue(msg);
         Class resultType = requestInfo.getResultType();
         Object result = objectMapper.readerFor(resultType).readValue(requestInfo.getResult());
-        RpcFuture lock = resultAsyncMap.remove(requestInfo.getRequestId());
+        RpcFuture lock = InvokerHandlerImpl.resultAsyncMap.remove(requestInfo.getRequestId());
         lock.success(result);
-
     }
 
     @Override
@@ -52,30 +53,7 @@ public class ClientHandler extends SimpleChannelInboundHandler<String> {
         log.debug("channel inactive");
     }
 
-    /**
-     * 返回requestId
-     */
-    public RpcFuture sendMsg(String className, String methodName, Object[] parameters, Class[] parameterTypes, Class returnType) throws JsonProcessingException {
-        RequestInfo requestInfo = new RequestInfo();
-        requestInfo.setClassName(className);
-        requestInfo.setMethodName(methodName);
-        requestInfo.setParameters(parameters);
-        requestInfo.setParameterTypes(parameterTypes);
-        requestInfo.setRequestId(UUID.randomUUID().toString());
-        requestInfo.setResultType(returnType);
-        ObjectMapper mapper = new ObjectMapper();
-        RpcFuture rpcFuture = new RpcFuture();
-        resultAsyncMap.put(requestInfo.getRequestId(), rpcFuture);
-        // 发送信息给服务端
-        context.channel().eventLoop().execute(() -> {
-            try {
-                context.writeAndFlush(mapper.writeValueAsString(requestInfo));
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
-            }
-        });
-        return rpcFuture;
-    }
+
 
 
 }
