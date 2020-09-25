@@ -30,14 +30,11 @@ public class InvokerHandlerImpl implements InvocationHandler {
         if (serverList == null || serverList.isEmpty()) {
             throw new RuntimeException("服务器端无端点可访问，请联系管理员");
         }
-        // 获取
+        // 负载均衡，随机获取一个服务器
         String serverInfo = (String) RandomUtil.getRandomOne(serverList);
-
         log.info("serverList {} randomPort {}", serverList, serverInfo);
-
         String hostAddress = serverInfo.split("_")[0];
         Integer port = Integer.parseInt(serverInfo.split("_")[1]);
-
         // 此处会修改
         this.handler = new ClientHandler();
         log.info("invoker handler init success");
