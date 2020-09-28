@@ -1,6 +1,8 @@
 package com.husky.hrpc.sever;
 
+import com.husky.hrpc.common.config.ZkConfig;
 import com.husky.hrpc.sever.handler.InvokeHandler;
+import com.husky.hrpc.util.NetUtil;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -22,19 +24,26 @@ import java.net.UnknownHostException;
  */
 @Slf4j
 public class NettyServer {
-    private int port;
-    private ZkClient zkClient;
+    private ZkConfig zkConfig;
 
-    public NettyServer(int port) {
-        this.port = port;
+    public NettyServer(ZkConfig zkConfig) {
+        this.zkConfig = zkConfig;
     }
 
+    private ZkClient zkClient;
+
     private void initZookeeper() {
-        this.zkClient = new ZkClient("121.36.241.65:2181");
+        this.zkClient = new ZkClient(zkConfig.getHostAddress() + ":" + zkConfig.getPort());
     }
 
 
     public void start() {
+        int idlePort = -1;
+        try {
+            idlePort = NetUtil.getIdlePort();
+        } catch (UnknownHostException e) {
+            throw new RuntimeException(e.getMessage());
+        }
         ServerBootstrap bootstrap = new ServerBootstrap();
         EventLoopGroup boss = new NioEventLoopGroup();
         EventLoopGroup worker = new NioEventLoopGroup();
@@ -51,9 +60,10 @@ public class NettyServer {
                                 .addLast(new InvokeHandler());
                     }
                 })
-                .bind(port)
+                .bind(idlePort)
                 .addListener(future -> log.info("server start success : {}", future.isSuccess()));
         initZookeeper();
+        int finalIdlePort = idlePort;
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -64,7 +74,7 @@ public class NettyServer {
                 try {
                     serverInfo.append(InetAddress.getLocalHost().getHostAddress());
                     serverInfo.append("_");
-                    serverInfo.append(port);
+                    serverInfo.append(finalIdlePort);
                 } catch (UnknownHostException e) {
                     e.printStackTrace();
                 }

@@ -8,7 +8,6 @@ import com.husky.hrpc.client.handler.ClientHandler;
 import com.husky.hrpc.common.RequestInfo;
 import com.husky.hrpc.common.config.ZkConfig;
 import com.husky.hrpc.util.RandomUtil;
-import com.sun.security.ntlm.Client;
 import io.netty.channel.Channel;
 import lombok.extern.slf4j.Slf4j;
 import org.I0Itec.zkclient.ZkClient;
@@ -40,25 +39,30 @@ public class InvokerHandlerImpl implements InvocationHandler {
         if (serverList == null || serverList.isEmpty()) {
             throw new RuntimeException("服务器端无端点可访问，请联系管理员");
         }
-        // 负载均衡，随机获取一个服务器
-        String serverInfo = (String) RandomUtil.getRandomOne(serverList);
-        log.info("serverList {} randomPort {}", serverList, serverInfo);
-        String hostAddress = serverInfo.split("_")[0];
-        Integer port = Integer.parseInt(serverInfo.split("_")[1]);
+//        // 负载均衡，随机获取一个服务器
+//        String serverInfo = (String) RandomUtil.getRandomOne(serverList);
+//        log.info("serverList {} randomPort {}", serverList, serverInfo);
+//        String hostAddress = serverInfo.split("_")[0];
+//        Integer port = Integer.parseInt(serverInfo.split("_")[1]);
         // 此处会修改
         this.handler = new ClientHandler();
         log.info("invoker handler init success");
         this.clazz = clazz;
-        initNettyClient(this.handler);
+        initNettyClient(this.handler, serverList);
     }
 
 
-    private void initNettyClient(ClientHandler clientHandler) {
+    private void initNettyClient(ClientHandler clientHandler, List<String> serverList) {
         NettyClient nettyClient = new NettyClient(clientHandler);
         nettyClient.start();
-        nettyClient.connectServer("localhost", 10243);
-        nettyClient.connectServer("localhost", 10244);
-        nettyClient.connectServer("localhost", 10245);
+        // 暂时先这样
+        for (String serverPath : serverList) {
+            String serverInfo = (String) RandomUtil.getRandomOne(serverList);
+            log.info("serverList {} randomPort {}", serverList, serverInfo);
+            String hostAddress = serverInfo.split("_")[0];
+            Integer port = Integer.parseInt(serverInfo.split("_")[1]);
+            nettyClient.connectServer(hostAddress, port);
+        }
     }
 
     @Override
@@ -83,9 +87,9 @@ public class InvokerHandlerImpl implements InvocationHandler {
         resultAsyncMap.put(requestInfo.getRequestId(), rpcFuture);
         Channel channel = (Channel) RandomUtil.getRandomOne(new ArrayList(NettyClient.serverList.values()));
         // send message
-        log.info("channel active {}",channel.isActive());
+        log.info("channel active {}", channel.isActive());
         channel.writeAndFlush(mapper.writeValueAsString(requestInfo)).addListener(future -> {
-           log.info("send message success :{}",future.isSuccess());
+            log.info("send message success :{}", future.isSuccess());
         });
         return rpcFuture;
     }

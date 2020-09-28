@@ -68,7 +68,11 @@ server:服务端完成invoke后，将requestId和结果一并返回
 ### 版本六
 看了一下guide哥写的rpc框架，借鉴了一下他的channel保存的方式。
 只是简单的实现了一点，并没有对channel进行判断什么的，channel的isActive判断什么的
-### 版本七 todo 
+### 版本7
+对netty端口数据进行封装，对用户屏蔽
+
+###  todo 
+0.客户端连接服务端，修改：不是刚开始就连接所有服务器，而是建个缓存channel Map.存在（1.直接连channel2.判断channel是否还活着）.不存在就建立channel
 1.是使用zookeeper监听器来实现对服务的感知，还是使用动态判断呢。兄弟们 
 2.重构项目
 
