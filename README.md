@@ -70,9 +70,12 @@ server:服务端完成invoke后，将requestId和结果一并返回
 只是简单的实现了一点，并没有对channel进行判断什么的，channel的isActive判断什么的
 ### 版本7
 对netty端口数据进行封装，对用户屏蔽
+### 版本8 
+1.重构了项目2.客户端连接服务端，修改：不是刚开始就连接所有服务器，而是建个缓存channel Map.存在（1.直接连channel2.判断channel是否还活着）.不存在就建立channel
+3.使用zookeeper监听器来实现对服务的感知.但是这个是不实时的，可能出错
 
 ###  todo 
-0.客户端连接服务端，修改：不是刚开始就连接所有服务器，而是建个缓存channel Map.存在（1.直接连channel2.判断channel是否还活着）.不存在就建立channel
+0.
 1.是使用zookeeper监听器来实现对服务的感知，还是使用动态判断呢。兄弟们 
 2.重构项目
 
