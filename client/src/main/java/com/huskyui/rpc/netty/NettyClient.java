@@ -14,7 +14,8 @@ import io.netty.handler.codec.DelimiterBasedFrameDecoder;
 import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.CharsetUtil;
 
-import java.nio.charset.StandardCharsets;
+import java.util.List;
+
 
 /**
  * @author 王鹏
@@ -25,35 +26,55 @@ public class NettyClient {
 
     private Bootstrap bootstrap;
 
-    public static NettyClient getInstance(){
+    public static NettyClient getInstance() {
         return instance;
     }
 
-    private NettyClient(){
-        if (bootstrap == null){
-
+    private NettyClient() {
+        if (bootstrap == null) {
+            bootstrap = initBootstrap();
         }
     }
 
-    private Bootstrap initBootstrap(){
+    private Bootstrap initBootstrap() {
         EventLoopGroup group = new NioEventLoopGroup(2);
         Bootstrap bootstrap = new Bootstrap();
         bootstrap.group(group).channel(NioSocketChannel.class)
-                .option(ChannelOption.SO_KEEPALIVE,true)
-                .option(ChannelOption.TCP_NODELAY,true)
+                .option(ChannelOption.SO_KEEPALIVE, true)
+                .option(ChannelOption.TCP_NODELAY, true)
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
                         ByteBuf delimiter = Unpooled.copiedBuffer(Constant.DELIMITER.getBytes(CharsetUtil.UTF_8));
                         ch.pipeline()
-                                .addLast(new DelimiterBasedFrameDecoder(Constant.MAX_LENGTH,delimiter))
+                                .addLast(new DelimiterBasedFrameDecoder(Constant.MAX_LENGTH, delimiter))
                                 .addLast(new MsgDecoder())
                                 .addLast(new MsgEncoder())
-                                .addLast(new IdleStateHandler(0,0,30))
+                                .addLast(new IdleStateHandler(0, 0, 30))
                                 .addLast(new NettyClientHandler());
                     }
                 });
         return bootstrap;
+    }
+
+    public synchronized void connect(List<String> addressList) {
+        if (addressList == null || addressList.isEmpty()) {
+            return;
+        }
+        for (String address : addressList) {
+            String[] split = address.split(":");
+            try {
+                ChannelFuture channelFuture = bootstrap.connect(split[0], Integer.parseInt(split[1])).sync();
+                Channel channel = channelFuture.channel();
+                System.out.println("登录成功");
+            }catch (Exception e){
+                e.printStackTrace();
+                System.out.println("登录失败");
+            }
+
+
+        }
+
     }
 
 

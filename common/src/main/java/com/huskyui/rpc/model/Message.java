@@ -8,12 +8,15 @@ import lombok.Data;
  */
 @Data
 public class Message {
-    private MessageType messageType;
+    private int messageType;
 
     private String body;
 
+    public Message() {
+    }
+
     public Message(MessageType messageType, String body) {
-        this.messageType = messageType;
+        this.messageType = messageType.getType();
         this.body = body;
     }
 }

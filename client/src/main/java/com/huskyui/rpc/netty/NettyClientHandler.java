@@ -1,7 +1,10 @@
 package com.huskyui.rpc.netty;
 
+import com.huskyui.rpc.core.eventbus.EventBusCenter;
+import com.huskyui.rpc.core.eventbus.server.OfflineEvent;
 import com.huskyui.rpc.enums.MessageType;
 import com.huskyui.rpc.model.Message;
+import com.huskyui.rpc.utils.JsonUtils;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -30,7 +33,7 @@ public class NettyClientHandler extends SimpleChannelInboundHandler<Message> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Message msg) throws Exception {
-
+        System.out.println("server=>client msg"+ JsonUtils.toJson(msg));
     }
 
 
@@ -42,6 +45,7 @@ public class NettyClientHandler extends SimpleChannelInboundHandler<Message> {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        // post event
+        // post offline event
+        EventBusCenter.getInstance().post(new OfflineEvent(ctx.channel()));
     }
 }
