@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+option java_package = "com.huskyui.rpc.model";
+option java_outer_classname = "MessageProto";
+option java_multiple_files = true;
+
+message Message{
+  MessageType messageType = 1;
+  string      body        = 2;
+
+  enum MessageType{
+    HEART_BEAT = 0;
+    ONLINE     = 1;
+    RESPONSE   = 2;
+  }
+}

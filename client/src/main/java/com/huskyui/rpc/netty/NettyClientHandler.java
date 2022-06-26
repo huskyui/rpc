@@ -2,9 +2,7 @@ package com.huskyui.rpc.netty;
 
 import com.huskyui.rpc.core.eventbus.EventBusCenter;
 import com.huskyui.rpc.core.eventbus.server.OfflineEvent;
-import com.huskyui.rpc.enums.MessageType;
 import com.huskyui.rpc.model.Message;
-import com.huskyui.rpc.utils.JsonUtils;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -25,7 +23,11 @@ public class NettyClientHandler extends SimpleChannelInboundHandler<Message> {
             IdleStateEvent idleStateEvent = (IdleStateEvent) evt;
             if(idleStateEvent.state() == IdleState.ALL_IDLE){
                 // send heartbeat to sever
-                ctx.writeAndFlush(new Message(MessageType.HEART_BEAT,"hello"));
+                Message message = Message.newBuilder()
+                        .setMessageType(Message.MessageType.HEART_BEAT)
+                        .setBody("hello")
+                        .build();
+                ctx.writeAndFlush(message);
             }
         }
         super.userEventTriggered(ctx, evt);
@@ -33,14 +35,18 @@ public class NettyClientHandler extends SimpleChannelInboundHandler<Message> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Message msg) throws Exception {
-        System.out.println("server=>client msg"+ JsonUtils.toJson(msg));
+        System.out.println("server=>client msg"+ msg.toString());
     }
 
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         // send msg to notify server
-        ctx.writeAndFlush(new Message(MessageType.ONLINE,"i am online"));
+        Message message = Message.newBuilder()
+                .setMessageType(Message.MessageType.ONLINE)
+                .setBody("i am online")
+                .build();
+        ctx.writeAndFlush(message);
     }
 
     @Override

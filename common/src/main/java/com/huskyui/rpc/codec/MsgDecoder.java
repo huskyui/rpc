@@ -19,7 +19,7 @@ public class MsgDecoder extends ByteToMessageDecoder {
         try{
             byte[] bytes = new byte[byteBuf.readableBytes()];
             byteBuf.readBytes(bytes);
-            list.add(JsonUtils.fromJson(new String(bytes, CharsetUtil.UTF_8),Message.class));
+            list.add(Message.parseFrom(bytes));
         }catch(Exception e){
             e.printStackTrace();
         }
