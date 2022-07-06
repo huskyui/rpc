@@ -66,7 +66,7 @@ public class NettyClient {
             try {
                 ChannelFuture channelFuture = bootstrap.connect(split[0], Integer.parseInt(split[1])).sync();
                 Channel channel = channelFuture.channel();
-                System.out.println("登录成功");
+                ServerHolder.addServer(address,channel);
             }catch (Exception e){
                 e.printStackTrace();
                 System.out.println("登录失败");

@@ -35,7 +35,7 @@ public class NettyClientHandler extends SimpleChannelInboundHandler<Message> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Message msg) throws Exception {
-        System.out.println("server=>client msg"+ msg.toString());
+        System.out.println("server=>client msg"+"[msgBody]"+msg.getBody()+"[msgType]"+msg.getMessageType().toString());
     }
 
 

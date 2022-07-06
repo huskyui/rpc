@@ -5,6 +5,8 @@ import com.huskyui.rpc.core.eventbus.EventBusCenter;
 import lombok.Builder;
 import lombok.Data;
 
+import static com.huskyui.rpc.core.eventbus.server.ServerRetryConnector.retryConnectServer;
+
 /**
  * @author 王鹏
  */
@@ -16,7 +18,12 @@ public class ClientStarter {
     private String etcdAddress;
 
     public void startPipeline(){
+        // 处理不同的事件
         registerEventBus();
+
+        // 重新连接服务器
+        retryConnectServer();
+
     }
 
 
