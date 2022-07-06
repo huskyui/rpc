@@ -31,7 +31,7 @@ public class NettyServer {
                 .childOption(ChannelOption.SO_KEEPALIVE,true)
                 .childHandler(new ChannelInitializer<Channel>() {
                     @Override
-                    protected void initChannel(Channel ch) throws Exception {
+                    protected void initChannel(Channel ch) {
                         ByteBuf delimiterByteBuf = Unpooled.copiedBuffer(Constant.DELIMITER.getBytes(CharsetUtil.UTF_8));
                         NettyServerHandler nettyServerHandler = new NettyServerHandler();
                         ch.pipeline()

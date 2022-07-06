@@ -1,6 +1,7 @@
 package com.huskyui.rpc.core.eventbus.server;
 
 import com.google.common.eventbus.Subscribe;
+import com.huskyui.rpc.netty.ServerHolder;
 import io.netty.channel.Channel;
 import lombok.extern.slf4j.Slf4j;
 
@@ -17,6 +18,7 @@ public class ChannelOfflineSubscriber {
         Channel channel = event.getChannel();
         SocketAddress socketAddress = channel.remoteAddress();
         System.out.println("remote server offline "+ socketAddress.toString());
+        ServerHolder.dealChannelInactive(socketAddress.toString().substring(1));
         channel.close();
     }
 
