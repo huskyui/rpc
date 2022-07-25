@@ -57,16 +57,16 @@ public class NettyClient {
         return bootstrap;
     }
 
-    public synchronized void connect(List<String> addressList) {
-        if (addressList == null || addressList.isEmpty()) {
+    public synchronized void connect(List<ServerHolder.ServerInfo> serverInfoList) {
+        if (serverInfoList == null || serverInfoList.isEmpty()) {
             return;
         }
-        for (String address : addressList) {
-            String[] split = address.split(":");
+        for (ServerHolder.ServerInfo serverInfo : serverInfoList) {
+            String[] split = serverInfo.getAddress().split(":");
             try {
                 ChannelFuture channelFuture = bootstrap.connect(split[0], Integer.parseInt(split[1])).sync();
                 Channel channel = channelFuture.channel();
-                ServerHolder.addServer(address,channel);
+                ServerHolder.addServer(serverInfo.getServerName(), serverInfo.getAddress(),channel);
             }catch (Exception e){
                 e.printStackTrace();
                 System.out.println("登录失败");

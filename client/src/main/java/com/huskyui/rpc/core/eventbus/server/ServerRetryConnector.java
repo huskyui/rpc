@@ -20,10 +20,10 @@ public class ServerRetryConnector {
 
 
     private static void reConnectServer() {
-        List<String> allUnConnectedChannel = ServerHolder.getAllUnConnectedChannel();
-        System.out.println("found unConnected channel" + allUnConnectedChannel);
-        if (allUnConnectedChannel.size() > 0) {
-            NettyClient.getInstance().connect(allUnConnectedChannel);
+        List<ServerHolder.ServerInfo> disconnectedServerList = ServerHolder.getAllUnConnectedChannel();
+        System.out.println("found disconnected server" + disconnectedServerList);
+        if (disconnectedServerList.size() > 0) {
+            NettyClient.getInstance().connect(disconnectedServerList);
         }
     }
 }
