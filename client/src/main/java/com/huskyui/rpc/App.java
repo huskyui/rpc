@@ -21,6 +21,7 @@ public class App {
         ClientStarter clientStarter = new ClientStarter("client","127.0.0.1:2379");
 
         clientStarter.startPipeline();
+        // todo 将这边的方法封装到后台
         IConfigCenter configCenter = EtcdBuilder.build("127.0.0.1:2379");
         List<KeyValue> keyValueList = configCenter.getPrefix("/server");
         List<ServerHolder.ServerInfo> addressList = new ArrayList<>();
