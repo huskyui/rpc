@@ -6,13 +6,12 @@ import com.huskyui.rpc.configcenter.IConfigCenter;
 import com.huskyui.rpc.configcenter.etcd.EtcdBuilder;
 
 /**
- *
+ * @author 王鹏
  */
-public class App 
-{
+public class App2 {
     public static void main( String[] args ) throws InterruptedException {
         // netty port
-        int port = 15789;
+        int port = 15790;
 
         IConfigCenter configCenter = EtcdBuilder.build("127.0.0.1:2379");
 //

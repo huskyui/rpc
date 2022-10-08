@@ -7,8 +7,6 @@ import io.netty.channel.Channel;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author 王鹏
@@ -27,6 +25,15 @@ public class ServerHolder {
 
     public static void dealChannelInactive(String address){
 
+    }
+
+    public static Collection<ServerInfo> getServerInfo(String serverName){
+        return HOLDER.get(serverName);
+    }
+
+
+    public static void getDetail(){
+        System.out.println(HOLDER.toString());
     }
 
     public static List<ServerInfo> getAllUnConnectedChannel() {

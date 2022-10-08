@@ -2,6 +2,8 @@ package com.huksyui.rpc.etcd;
 
 import com.huskyui.rpc.configcenter.IConfigCenter;
 
+import java.security.SecureRandom;
+import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -18,8 +20,11 @@ public class EtcdStarter {
 
     private final static String SERVER_PATH = "/server";
 
+    private String randomStr = "";
+
 
     public EtcdStarter() {
+        this.getRandomStr();
     }
 
     public void setConfigCenter(IConfigCenter configCenter) {
@@ -46,13 +51,17 @@ public class EtcdStarter {
     }
 
     private String generateAppName() {
-        // fixme 127.0.0.1改成hostname
-        return SERVER_PATH + "/" + this.serverName+"/"+"127.0.0.1";
+        return SERVER_PATH + "/" + this.serverName + "/" + this.randomStr;
     }
 
     private String generateIpAndPort() {
         // fixme get localIp
         return "127.0.0.1:" + port;
+    }
+
+    private void  getRandomStr() {
+        SecureRandom random = new SecureRandom();
+        this.randomStr = System.currentTimeMillis() + "" + random.nextInt(10000);
     }
 
 }
